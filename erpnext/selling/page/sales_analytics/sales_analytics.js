@@ -69,6 +69,15 @@ erpnext.SalesAnalytics = frappe.views.TreeGridReport.extend({
 				formatter: function(item) {
 					return item.name;
 				}
+			},
+			"Sales Channel": {
+				label: __("Sales Channel"),
+				show: true,
+				item_key: "sales_channel",
+				// parent_field: "parent_territory",
+				formatter: function(item) {
+					return item.name;
+				}
 			}
 		}
 	},

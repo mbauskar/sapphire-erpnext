@@ -146,11 +146,6 @@ def get_data():
 					"label": _("Lead to Quotation"),
 					"youtube_id": "TxYX4r4JAKA"
 				},
-				{
-					"type": "help",
-					"label": _("Newsletters"),
-					"youtube_id": "muLKsCrrDRo"
-				},
 			]
 		},
 	]

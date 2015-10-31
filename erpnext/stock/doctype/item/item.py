@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import frappe
 import json
 import urllib
-import itertools
 from frappe import msgprint, _
 from frappe.utils import cstr, flt, cint, getdate, now_datetime, formatdate
 from frappe.website.website_generator import WebsiteGenerator
@@ -104,16 +103,12 @@ class Item(WebsiteGenerator):
 
 			# for CSV import
 			if not file_doc:
-				try:
-					file_doc = frappe.get_doc({
-						"doctype": "File",
-						"file_url": self.website_image,
-						"attached_to_doctype": "Item",
-						"attached_to_name": self.name
-					}).insert()
-
-				except IOError:
-					self.website_image = None
+				file_doc = frappe.get_doc({
+					"doctype": "File",
+					"file_url": self.website_image,
+					"attached_to_doctype": "Item",
+					"attached_to_name": self.name
+				}).insert()
 
 			if file_doc:
 				if not file_doc.thumbnail_url:
@@ -134,8 +129,6 @@ class Item(WebsiteGenerator):
 		self.set_variant_context(context)
 
 		self.set_attribute_context(context)
-
-		self.set_disabled_attributes(context)
 
 		context.parents = self.get_parents(context)
 
@@ -196,62 +189,14 @@ class Item(WebsiteGenerator):
 			for attr in self.attributes:
 				values = context.attribute_values.setdefault(attr.attribute, [])
 
-				if cint(frappe.db.get_value("Item Attribute", attr.attribute, "numeric_values")):
-					for val in sorted(attribute_values_available.get(attr.attribute, []), key=flt):
-						values.append(val)
+				# get list of values defined (for sequence)
+				for attr_value in frappe.db.get_all("Item Attribute Value",
+					fields=["attribute_value"], filters={"parent": attr.attribute}, order_by="idx asc"):
 
-				else:
-					# get list of values defined (for sequence)
-					for attr_value in frappe.db.get_all("Item Attribute Value",
-						fields=["attribute_value"], filters={"parent": attr.attribute}, order_by="idx asc"):
-
-						if attr_value.attribute_value in attribute_values_available.get(attr.attribute, []):
-							values.append(attr_value.attribute_value)
+					if attr_value.attribute_value in attribute_values_available.get(attr.attribute, []):
+						values.append(attr_value.attribute_value)
 
 			context.variant_info = json.dumps(context.variants)
-
-	def set_disabled_attributes(self, context):
-		"""Disable selection options of attribute combinations that do not result in a variant"""
-		if not self.attributes:
-			return
-
-		context.disabled_attributes = {}
-		attributes = [attr.attribute for attr in self.attributes]
-
-		def find_variant(combination):
-			for variant in context.variants:
-				if len(variant.attributes) < len(attributes):
-					continue
-
-				if "combination" not in variant:
-					ref_combination = []
-
-					for attr in variant.attributes:
-						idx = attributes.index(attr.attribute)
-						ref_combination.insert(idx, attr.attribute_value)
-
-					variant["combination"] = ref_combination
-
-				if not (set(combination) - set(variant["combination"])):
-					# check if the combination is a subset of a variant combination
-					# eg. [Blue, 0.5] is a possible combination if exists [Blue, Large, 0.5]
-					return True
-
-		for i, attr in enumerate(self.attributes):
-			if i==0:
-				continue
-
-			combination_source = []
-
-			# loop through previous attributes
-			for prev_attr in self.attributes[:i]:
-				combination_source.append([context.selected_attributes.get(prev_attr.attribute)])
-
-			combination_source.append(context.attribute_values[attr.attribute])
-
-			for combination in itertools.product(*combination_source):
-				if not find_variant(combination):
-					context.disabled_attributes.setdefault(attr.attribute, []).append(combination[-1])
 
 	def check_warehouse_is_set_for_stock_item(self):
 		if self.is_stock_item==1 and not self.default_warehouse and frappe.get_all("Warehouse"):
@@ -524,16 +469,13 @@ class Item(WebsiteGenerator):
 				if variant and self.get("__islocal"):
 					frappe.throw(_("Item variant {0} exists with same attributes").format(variant), ItemVariantExistsError)
 
-def validate_end_of_life(item_code, end_of_life=None, disabled=None, verbose=1):
-	if (not end_of_life) or (disabled is None):
-		end_of_life, disabled = frappe.db.get_value("Item", item_code, ["end_of_life", "disabled"])
+def validate_end_of_life(item_code, end_of_life=None, verbose=1):
+	if not end_of_life:
+		end_of_life = frappe.db.get_value("Item", item_code, "end_of_life")
 
 	if end_of_life and end_of_life!="0000-00-00" and getdate(end_of_life) <= now_datetime().date():
 		msg = _("Item {0} has reached its end of life on {1}").format(item_code, formatdate(end_of_life))
 		_msgprint(msg, verbose)
-
-	if disabled:
-		_msgprint(_("Item {0} is disabled").format(item_code), verbose)
 
 def validate_is_stock_item(item_code, is_stock_item=None, verbose=1):
 	if not is_stock_item:

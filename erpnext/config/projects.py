@@ -70,15 +70,4 @@ def get_data():
 				},
 			]
 		},
-		{
-			"label": _("Help"),
-			"icon": "icon-facetime-video",
-			"items": [
-				{
-					"type": "help",
-					"label": _("Managing Projects"),
-					"youtube_id": "egxIGwtoKI4"
-				},
-			]
-		},
 	]

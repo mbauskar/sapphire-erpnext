@@ -699,15 +699,13 @@ def get_payment_entry_from_purchase_order(purchase_order):
 
 def get_payment_entry(doc):
 	bank_account = get_default_bank_cash_account(doc.company, "Bank Entry")
-	cost_center = frappe.db.get_value("Company", doc.company, "cost_center")
 
 	jv = frappe.new_doc('Journal Entry')
 	jv.voucher_type = 'Bank Entry'
 	jv.company = doc.company
 	jv.fiscal_year = doc.fiscal_year
 
-	d1 = jv.append("accounts")
-	d1.cost_center = cost_center
+	jv.append("accounts")
 	d2 = jv.append("accounts")
 
 	if bank_account:
@@ -717,7 +715,6 @@ def get_payment_entry(doc):
 		d2.account_type = bank_account["account_type"]
 		d2.exchange_rate = get_exchange_rate(bank_account["account"],
 			bank_account["account_currency"], doc.company)
-		d2.cost_center = cost_center
 
 	return jv
 

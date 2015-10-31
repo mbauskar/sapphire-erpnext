@@ -24,6 +24,24 @@ frappe.query_reports["Gross Profit"] = {
 			"default": frappe.defaults.get_user_default("year_end_date")
 		},
 		{
+			"fieldname":"item_group",
+			"label": __("Item Group"),
+			"fieldtype": "Link",
+			"options": "Item Group"
+		},
+		{
+			"fieldname":"customer_group",
+			"label": __("Customer Group"),
+			"fieldtype": "Link",
+			"options": "Customer Group"
+		},
+		{
+			"fieldname":"customer",
+			"label": __("Customer"),
+			"fieldtype": "Link",
+			"options": "Customer"
+		},
+		{
 			"fieldname":"group_by",
 			"label": __("Group By"),
 			"fieldtype": "Select",

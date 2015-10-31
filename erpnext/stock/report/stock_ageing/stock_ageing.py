@@ -38,7 +38,8 @@ def get_average_age(fifo_queue, to_date):
 def get_columns():
 	return [_("Item Code") + ":Link/Item:100", _("Item Name") + "::100", _("Description") + "::200",
 		_("Item Group") + ":Link/Item Group:100", _("Brand") + ":Link/Brand:100", _("Average Age") + ":Float:100",
-		_("Earliest") + ":Int:80", _("Latest") + ":Int:80", _("UOM") + ":Link/UOM:100"]
+		_("Earliest") + ":Int:80", _("Latest") + ":Int:80", _("UOM") + ":Link/UOM:100", "Sell Through Rate:Int:100",
+		"Order On::150"]
 
 def get_fifo_queue(filters):
 	item_details = {}

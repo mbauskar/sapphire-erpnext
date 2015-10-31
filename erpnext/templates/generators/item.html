@@ -24,13 +24,12 @@
 				{{ web_long_description or description or _("No description given") }}
 				</div>
 				<p class="text-muted">
-					{{ _("Item Code") }}: <span itemprop="productID">{{ variant and variant.name or name }}</span></p>
+					{{ _("Item Code") }}: <span itemprop="productID">{{ name }}</span></p>
 				<br>
 				<div class="item-attribute-selectors">
                     {% if has_variants %}
                     {% for d in attributes %}
-					{% if attribute_values[d.attribute] -%}
-                    <div class="item-view-attribute {% if (attribute_values[d.attribute] | len)==1 -%} hidden {%- endif %}"
+                    <div class="item-view-attribute"
                             style="margin-bottom: 10px;">
                         <h6 class="text-muted">{{ _(d.attribute) }}</h6>
                         <select class="form-control"
@@ -38,17 +37,12 @@
                             data-attribute="{{ d.attribute }}">
 						{% for value in attribute_values[d.attribute] %}
                         <option value="{{ value }}"
-						{% if selected_attributes and selected_attributes[d.attribute]==value -%}
-							selected
-						{%- elif disabled_attributes and value in disabled_attributes.get(d.attribute, []) -%}
-							disabled
-						{%- endif %}>
+							{% if selected_attributes and selected_attributes[d.attribute]==value -%} selected {%- endif %}>
 							{{ _(value) }}
 						</option>
                         {% endfor %}
                         </select>
                     </div>
-					{%- endif %}
                     {% endfor %}
                     {% endif %}
 				</div>

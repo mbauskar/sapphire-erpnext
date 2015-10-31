@@ -14,9 +14,12 @@ def execute(filters=None):
 	source = gross_profit_data.grouped_data if filters.get("group_by") != "Invoice" else gross_profit_data.data
 
 	group_wise_columns = frappe._dict({
-		"invoice": ["parent", "customer", "posting_date", "posting_time", "item_code", "item_name", "brand", "description", \
+		# "invoice": ["parent", "customer", "posting_date", "posting_time", "sales_channel", "item_code", "item_name", "brand", "description", \
+		# 	"warehouse", "qty", "base_rate", "buying_rate", "base_amount",
+		# 	"buying_amount", "logistic_cost", "gross_profit", "gross_profit_percent", "Gross Margin","project"],
+		"invoice": ["parent", "customer", "posting_date", "posting_time", "sales_channel", "item_code", "item_name", "brand", "description", \
 			"warehouse", "qty", "base_rate", "buying_rate", "base_amount",
-			"buying_amount", "gross_profit", "gross_profit_percent", "project"],
+			"buying_amount", "logistic_cost", "gross_profit", "gross_profit_percent", "gross_margin","project"],
 		"item_code": ["item_code", "item_name", "brand", "description", "warehouse", "qty", "base_rate",
 			"buying_rate", "base_amount", "buying_amount", "gross_profit", "gross_profit_percent"],
 		"warehouse": ["warehouse", "qty", "base_rate", "buying_rate", "base_amount", "buying_amount",
@@ -71,7 +74,10 @@ def get_columns(group_wise_columns, filters):
 		"allocated_amount": _("Allocated Amount") + ":Currency",
 		"customer": _("Customer") + ":Link/Customer",
 		"customer_group": _("Customer Group") + ":Link/Customer Group",
-		"territory": _("Territory") + ":Link/Territory"
+		"territory": _("Territory") + ":Link/Territory",
+		"logistic_cost": _("Logistic Cost"),
+		"sales_channel": _("Sales Channel"),
+		"gross_margin": _("Gross Margin")
 	})
 
 	for col in group_wise_columns.get(scrub(filters.group_by)):
